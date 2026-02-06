@@ -347,7 +347,6 @@ function App() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setLeftOpen(false);
         setRightOpen(false);
       }
     };
