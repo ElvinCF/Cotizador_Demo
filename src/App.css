@@ -174,7 +174,6 @@
   border-radius: 20px;
   padding: 18px 20px;
   border: 1px solid rgba(210, 120, 62, 0.2);
-  display: grid;
   gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -187,7 +186,7 @@
 }
 
 .intro-kicker {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #8f3a18;
@@ -196,7 +195,7 @@
 
 .map-intro__title h3 {
   margin: 6px 0 4px;
-  font-size: 1.4rem;
+  font-size: 1.55rem;
   color: #c24a18;
 }
 
@@ -214,7 +213,8 @@
 
 .intro-sub {
   margin: 0;
-  color: #6a5c4c;
+  color: #5a4b3d;
+  font-weight: 600;
 }
 
 .intro-owner {
@@ -231,6 +231,7 @@
   text-transform: uppercase;
   color: #8f3a18;
   margin-bottom: 4px;
+  font-weight: 700;
 }
 
 .intro-owner strong {
@@ -250,18 +251,10 @@
   gap: 16px;
 }
 
-.map-intro__summary ul {
-  column-count: 2;
-  column-gap: 16px;
-}
-
-.map-intro__summary li {
-  break-inside: avoid;
-}
-
 .map-intro__summary h4 {
   margin: 0 0 8px;
   color: #8f3a18;
+  font-size: 1.05rem;
 }
 
 .map-intro__summary ul {
@@ -269,8 +262,9 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 6px;
-  color: #6a5c4c;
+  gap: 8px;
+  color: #4e3f32;
+  font-weight: 600;
 }
 
 .map-intro__summary li::before {
@@ -282,7 +276,7 @@
 .map-intro__panel-title {
   font-weight: 700;
   color: #8f3a18;
-
+  font-size: 1.05rem;
 }
 
 .map-intro__grid {
@@ -309,18 +303,19 @@
   border-radius: 16px;
   padding: 12px 14px;
   min-height: 110px;
+  box-shadow: 0 10px 20px rgba(180, 80, 20, 0.08);
 }
 
 .map-intro__grid h4 {
   margin: 0 0 6px;
-  font-size: 1rem;
+  font-size: 1.08rem;
   color: #a0431c;
 }
 
 .map-intro__grid p {
   margin: 0;
-  color: #6a5c4c;
-  font-size: 0.95rem;
+  color: #5a4b3d;
+  font-size: 0.98rem;
 }
 
 .map-header {
