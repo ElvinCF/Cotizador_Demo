@@ -1,4 +1,4 @@
-# Mapa interactivo – Arenas Malabrigo
+# Mapa interactivo ï¿½ Arenas Malabrigo
 
 MVP en React + Vite para un mapa de lotes con SVG sobre PNG. Incluye:
 - Vista **mapa** con zoom, pan, hover y seleccion de lotes.
@@ -41,4 +41,4 @@ El SVG principal esta en:
 src/components/arenas.tsx
 ```
 
-Si vas a conectar Google Sheets, reemplaza el `fetch` del CSV por la URL publica o la API.
+Si vas a conectar Google Sheets, reemplaza el `fetch` del CSV por la URL publica o la API. 
