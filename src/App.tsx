@@ -182,13 +182,21 @@ const overlayStyle = (transform: OverlayTransform) => ({
   transformOrigin: "top left",
 });
 
+const enforceFixedStatuses = (items: Lote[]): Lote[] =>
+  items.map((item) => {
+    if (item.mz === "B" && (item.lote === 17 || item.lote === 18)) {
+      return { ...item, condicion: "SEPARADO" };
+    }
+    return item;
+  });
+
 const loadLotesFromApi = async (): Promise<Lote[]> => {
   const response = await fetch("/api/lotes", { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`No se pudo cargar lotes: ${response.status}`);
   }
   const payload = (await response.json()) as { items?: Lote[] };
-  return Array.isArray(payload.items) ? payload.items : [];
+  return enforceFixedStatuses(Array.isArray(payload.items) ? payload.items : []);
 };
 
 const loadLotesFromCsvFallback = async (): Promise<Lote[]> => {
@@ -198,7 +206,7 @@ const loadLotesFromCsvFallback = async (): Promise<Lote[]> => {
     header: true,
     skipEmptyLines: true,
   });
-  return (parsed.data || []).flatMap((row: CsvRow): Lote[] => {
+  const rows = (parsed.data || []).flatMap((row: CsvRow): Lote[] => {
     const mz = (row.MZ || "").trim().toUpperCase();
     const lote = Number.parseInt((row.LOTE || "").trim(), 10);
     if (!mz || Number.isNaN(lote)) return [];
@@ -224,6 +232,7 @@ const loadLotesFromCsvFallback = async (): Promise<Lote[]> => {
       },
     ];
   });
+  return enforceFixedStatuses(rows);
 };
 
 function App() {

@@ -4,14 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "api": "node server.mjs",
+    "api": "node --env-file=.env server.mjs",
     "dev": "vite",
     "dev:full": "concurrently -k -n API,WEB -c green,cyan \"npm:api\" \"npm:dev\"",
+    "seed:supabase": "node --env-file=.env scripts/seed-supabase-from-csv.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "express": "^5.1.0",
     "html2canvas": "^1.4.1",
     "papaparse": "^5.5.3",
