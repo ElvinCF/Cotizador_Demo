@@ -8,6 +8,7 @@ import {
 import Papa from "papaparse";
 import ArenasSvg from "./components/arenas";
 import { projectInfo } from "./data/projectInfo";
+import VendedorPanel from "./templates/VendedorPanel";
 import "./App.css";
 
 const MemoArenasSvg = memo(ArenasSvg);
@@ -21,6 +22,8 @@ type Lote = {
   condicion: string;
   asesor?: string;
   cliente?: string;
+  comentario?: string;
+  ultimaModificacion?: string;
 };
 
 type CsvRow = {
@@ -30,12 +33,9 @@ type CsvRow = {
   PRECIO?: string;
   CONDICION?: string;
   ASESOR?: string;
-};
-
-type LoteOverride = {
-  price?: number | null;
-  condicion?: string;
-  cliente?: string;
+  CLIENTE?: string;
+  COMENTARIO?: string;
+  ULTIMA_MODIFICACION?: string;
 };
 
 type QuoteState = {
@@ -82,7 +82,6 @@ type ProformaState = {
   creadoEn: string;
 };
 
-const OVERRIDES_KEY = "arenas.lotes.overrides.v1";
 const PROFORMA_VENDOR_KEY = "arenas.proforma.vendor.v1";
 const PROYECTO_FIJO = "Arenas Malabrigo";
 const EMPRESA_DIRECCION =
@@ -139,16 +138,6 @@ const cleanNumber = (value: string | undefined) => {
 
 const toLoteId = (mz: string, lote: number) => `${mz}-${String(lote).padStart(2, "0")}`;
 
-const loadOverrides = (): Record<string, LoteOverride> => {
-  try {
-    const raw = localStorage.getItem(OVERRIDES_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw) as Record<string, LoteOverride>;
-  } catch {
-    return {};
-  }
-};
-
 const formatMoney = (value: number | null) => {
   if (value == null) return "-";
   return new Intl.NumberFormat("es-PE", {
@@ -188,21 +177,58 @@ const quoteMonthly = (monto: number, cuotas: number, interesAnual: number) => {
 
 const buildIdSet = (items: Lote[]) => new Set(items.map((item) => item.id));
 
-const applyOverrides = (items: Lote[], overrides: Record<string, LoteOverride>) =>
-  items.map((item) => ({
-    ...item,
-    ...overrides[item.id],
-  }));
-
 const overlayStyle = (transform: OverlayTransform) => ({
   transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
   transformOrigin: "top left",
 });
 
+const loadLotesFromApi = async (): Promise<Lote[]> => {
+  const response = await fetch("/api/lotes", { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`No se pudo cargar lotes: ${response.status}`);
+  }
+  const payload = (await response.json()) as { items?: Lote[] };
+  return Array.isArray(payload.items) ? payload.items : [];
+};
+
+const loadLotesFromCsvFallback = async (): Promise<Lote[]> => {
+  const response = await fetch("/assets/lotes.csv", { cache: "no-store" });
+  const text = await response.text();
+  const parsed = Papa.parse<CsvRow>(text, {
+    header: true,
+    skipEmptyLines: true,
+  });
+  return (parsed.data || []).flatMap((row: CsvRow): Lote[] => {
+    const mz = (row.MZ || "").trim().toUpperCase();
+    const lote = Number.parseInt((row.LOTE || "").trim(), 10);
+    if (!mz || Number.isNaN(lote)) return [];
+    const areaM2 = cleanNumber(row.AREA);
+    const price = cleanNumber(row.PRECIO);
+    const condicion = (row.CONDICION || "LIBRE").trim().toUpperCase();
+    const asesor = (row.ASESOR || "").trim();
+    const cliente = (row.CLIENTE || "").trim();
+    const comentario = (row.COMENTARIO || "").trim();
+    const ultimaModificacion = (row.ULTIMA_MODIFICACION || "").trim();
+    return [
+      {
+        id: toLoteId(mz, lote),
+        mz,
+        lote,
+        areaM2,
+        price,
+        condicion: condicion || "LIBRE",
+        asesor: asesor || undefined,
+        cliente: cliente || undefined,
+        comentario: comentario || undefined,
+        ultimaModificacion: ultimaModificacion || undefined,
+      },
+    ];
+  });
+};
+
 function App() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [rawLotes, setRawLotes] = useState<Lote[]>([]);
-  const [overrides, setOverrides] = useState<Record<string, LoteOverride>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [hoveredPos, setHoveredPos] = useState({ x: 0, y: 0 });
@@ -262,51 +288,29 @@ function App() {
   const lastPriceEditedRef = useRef<"soles" | "pct" | "promo" | null>(null);
 
   useEffect(() => {
-    fetch("/assets/lotes.csv")
-      .then((res) => res.text())
-      .then((text) => {
-        const parsed = Papa.parse<CsvRow>(text, {
-          header: true,
-          skipEmptyLines: true,
-        });
-        const rows = (parsed.data || []).flatMap((row: CsvRow): Lote[] => {
-          const mz = (row.MZ || "").trim().toUpperCase();
-          const lote = Number.parseInt((row.LOTE || "").trim(), 10);
-          if (!mz || Number.isNaN(lote)) return [];
-          const areaM2 = cleanNumber(row.AREA);
-          const price = cleanNumber(row.PRECIO);
-          const condicion = (row.CONDICION || "LIBRE").trim().toUpperCase();
-          const asesor = (row.ASESOR || "").trim();
-          return [
-            {
-              id: toLoteId(mz, lote),
-              mz,
-              lote,
-              areaM2,
-              price,
-              condicion: condicion || "LIBRE",
-              asesor: asesor || undefined,
-            },
-          ];
-        });
-        setRawLotes(rows);
-      });
-  }, []);
+    let active = true;
+    const syncLotes = async () => {
+      try {
+        const items = await loadLotesFromApi();
+        if (active) {
+          setRawLotes(items);
+        }
+      } catch (error) {
+        console.error(error);
+        try {
+          const fallbackItems = await loadLotesFromCsvFallback();
+          if (active) {
+            setRawLotes(fallbackItems);
+          }
+        } catch (fallbackError) {
+          console.error(fallbackError);
+        }
+      }
+    };
 
-  useEffect(() => {
-    const current = loadOverrides();
-    setOverrides(current);
-
-    const sync = () => setOverrides(loadOverrides());
-    window.addEventListener("storage", sync);
-    let channel: BroadcastChannel | null = null;
-    if ("BroadcastChannel" in window) {
-      channel = new BroadcastChannel("arenas-lotes-sync");
-      channel.onmessage = sync;
-    }
+    syncLotes();
     return () => {
-      window.removeEventListener("storage", sync);
-      if (channel) channel.close();
+      active = false;
     };
   }, []);
 
@@ -349,7 +353,7 @@ function App() {
     localStorage.setItem(PROFORMA_VENDOR_KEY, JSON.stringify(proforma.vendedor));
   }, [proforma.vendedor]);
 
-  const lotes = useMemo(() => applyOverrides(rawLotes, overrides), [rawLotes, overrides]);
+  const lotes = rawLotes;
 
   const filteredLotes = useMemo(() => {
     const mz = filters.mz.trim().toUpperCase();
@@ -1588,6 +1592,7 @@ function App() {
         <main className="main">
           <Routes>
             <Route path="/" element={MapView} />
+            <Route path="/vendedor" element={<VendedorPanel />} />
           </Routes>
         </main>
 

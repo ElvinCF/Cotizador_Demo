@@ -1646,3 +1646,239 @@
   object-fit: contain;
   display: block;
 }
+
+.seller-page {
+  width: 100%;
+  background: #fffaf1;
+  border: 1px solid rgba(210, 120, 62, 0.2);
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.seller-page__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.seller-page__head h2 {
+  margin: 0 0 6px;
+  color: #8f3a18;
+}
+
+.seller-page__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.seller-pending {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  color: #1c5c2a;
+  font-weight: 600;
+}
+
+.seller-pending.warn {
+  color: #8f3a18;
+}
+
+.seller-page__actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  min-height: auto;
+}
+
+.seller-page__actions .btn.ghost {
+  border: 1px solid rgba(210, 120, 62, 0.45);
+  color: #8f3a18;
+  background: #fffaf4;
+}
+
+.seller-page__actions .btn.ghost:hover {
+  box-shadow: 0 6px 14px rgba(143, 58, 24, 0.18);
+}
+
+.seller-search-block {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+  width: min(100%, clamp(420px, 58vw, 820px));
+  max-width: 100%;
+}
+
+.seller-search-block label {
+  font-size: 0.82rem;
+  color: #8f3a18;
+  font-weight: 700;
+}
+
+.seller-search-block input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(210, 120, 62, 0.3);
+  background: #fff;
+}
+
+.seller-error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #ffdede;
+  color: #7a1c1c;
+  border: 1px solid #f2aaaa;
+}
+
+.seller-notice {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #dff5e3;
+  color: #1c5c2a;
+  border: 1px solid #b7e5c0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.seller-notice__close {
+  border: 1px solid #9bcdab;
+  background: #f5fff7;
+  color: #1c5c2a;
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.seller-table-wrap {
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(210, 120, 62, 0.2);
+  max-height: 72vh;
+}
+
+.seller-edit-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1080px;
+  background: #fff;
+}
+
+.seller-edit-table th,
+.seller-edit-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(210, 120, 62, 0.14);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.seller-edit-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff3e7;
+  color: #8f3a18;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.seller-edit-table tr:nth-child(even) {
+  background: #fffdf9;
+}
+
+.seller-edit-table input,
+.seller-edit-table select {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(210, 120, 62, 0.3);
+  background: #fffaf6;
+  padding: 7px 9px;
+}
+
+.seller-price-input {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+.seller-price-input span {
+  font-weight: 700;
+  color: #8f3a18;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.seller-edit-table .btn:disabled {
+  background: #d8d3cb;
+  color: #756c63;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.seller-edit-table .btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .seller-page__title-row {
+    align-items: flex-start;
+  }
+
+  .seller-page__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 760px) {
+  .seller-search-block {
+    max-width: none;
+    width: 100%;
+  }
+
+  .seller-search-block input {
+    width: 100%;
+  }
+
+  .seller-table-wrap {
+    max-height: 74vh;
+  }
+
+  .seller-edit-table {
+    min-width: 1080px;
+  }
+
+  .seller-edit-table th,
+  .seller-edit-table td {
+    padding: 6px 7px;
+  }
+
+  .seller-edit-table input,
+  .seller-edit-table select {
+    padding: 5px 7px;
+    font-size: 0.88rem;
+  }
+
+  .seller-edit-table .btn {
+    padding: 6px 10px;
+    font-size: 0.86rem;
+  }
+}
